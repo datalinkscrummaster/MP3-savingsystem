@@ -168,22 +168,33 @@ def auth_view(request):
 
                 except Exception as e:
                     error_message = str(e)
-                    print(f"Firebase login error for {email}: {error_message}")
+                    print(f"🚨 Firebase login error for {email}: {error_message}")
+                    print(f"🔍 Error type: {type(e)}")
+                    print(f"📋 Full error details: {repr(e)}")
+                    
+                    # Try to get more detailed error information
+                    if hasattr(e, 'args') and e.args:
+                        print(f"📄 Error args: {e.args}")
                     
                     # Handle specific Firebase authentication errors
-                    if "INVALID_EMAIL" in error_message:
+                    error_upper = error_message.upper()
+                    if "INVALID_EMAIL" in error_upper or "INVALID-EMAIL" in error_upper:
                         return JsonResponse({'success': False, 'message': 'Invalid email address format.'}, status=401)
-                    elif "EMAIL_NOT_FOUND" in error_message:
+                    elif "EMAIL_NOT_FOUND" in error_upper or "EMAIL-NOT-FOUND" in error_upper:
                         return JsonResponse({'success': False, 'message': 'No account found with this email address.'}, status=401)
-                    elif "INVALID_PASSWORD" in error_message:
+                    elif "INVALID_PASSWORD" in error_upper or "INVALID-PASSWORD" in error_upper or "WRONG-PASSWORD" in error_upper:
                         return JsonResponse({'success': False, 'message': 'Incorrect password. Please try again.'}, status=401)
-                    elif "USER_DISABLED" in error_message:
+                    elif "INVALID_LOGIN_CREDENTIALS" in error_upper or "INVALID-LOGIN-CREDENTIALS" in error_upper:
+                        return JsonResponse({'success': False, 'message': 'Invalid email or password. Please check your credentials.'}, status=401)
+                    elif "USER_DISABLED" in error_upper or "USER-DISABLED" in error_upper:
                         return JsonResponse({'success': False, 'message': 'This account has been disabled.'}, status=401)
-                    elif "TOO_MANY_ATTEMPTS_TRY_LATER" in error_message:
+                    elif "TOO_MANY_ATTEMPTS_TRY_LATER" in error_upper or "TOO-MANY-REQUESTS" in error_upper:
                         return JsonResponse({'success': False, 'message': 'Too many failed attempts. Please try again later.'}, status=429)
+                    elif "NETWORK" in error_upper or "CONNECTION" in error_upper:
+                        return JsonResponse({'success': False, 'message': 'Network error. Please check your connection and try again.'}, status=500)
                     else:
-                        # Generic error message for any other Firebase errors
-                        return JsonResponse({'success': False, 'message': 'Invalid email or password. Please check your credentials and try again.'}, status=401)
+                        # Return the actual error message for debugging
+                        return JsonResponse({'success': False, 'message': f'Authentication failed: {error_message}'}, status=401)
 
             else:
                 return JsonResponse({'success': False, 'message': 'Unknown action'}, status=400)
