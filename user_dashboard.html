@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Success Shared Solution - Banking Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #0a0e1a;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* Background with blur effect */
+      .background-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('https://media.istockphoto.com/id/1460762245/photo/modern-style-hi-rise-blue-glass-building-exterior-with-transparent-wall-3d-render.jpg?s=612x612&w=0&k=20&c=a5V0dIHugs_dfzKDHP4NP6WR3lc00vA0wDpaMBrai3o=');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        filter: blur(15px) brightness(0.2);
+        transform: scale(1.1);
+        z-index: -2;
+      }
+
+      /* Overlay for better contrast */
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, 
+          rgba(10, 14, 26, 0.95) 0%, 
+          rgba(30, 58, 138, 0.85) 35%, 
+          rgba(15, 23, 42, 0.98) 100%);
+        z-index: -1;
+      }
+
+      .app-container {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        position: relative;
+      }
+
+      /* Professional Header */
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(25px);
+        background: rgba(15, 23, 42, 0.5);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 100;
+      }
+
+      .header-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: white;
+      }
+
+      .header-logo-icon {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+      }
+
+      .header-logo-text {
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: white;
+        font-size: 0.875rem;
+      }
+
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+
+      .mobile-menu-btn {
+        display: none;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: #3b82f6;
+        padding: 0.5rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .mobile-menu-btn:hover {
+        background: rgba(59, 130, 246, 0.2);
+        border-color: rgba(59, 130, 246, 0.5);
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 320px;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(30px);
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        height: calc(100vh - 80px);
+        z-index: 90;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-y: auto;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 80px);
+        background-color: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(8px);
+        z-index: 89;
+        display: none;
+      }
+
+      .sidebar-overlay.show {
+        display: block;
+      }
+
+      .profile-section {
+        background: linear-gradient(135deg, #1e40af, #3b82f6);
+        color: white;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+      }
+
+      .profile-section::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      }
+
+      .profile-pic {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 1rem;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .username {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.01em;
+      }
+
+      .user-role {
+        font-size: 0.875rem;
+        opacity: 0.9;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-weight: 500;
+      }
+
+      .navigation-section {
+        padding: 2rem 1.5rem;
+        flex: 1;
+      }
+
+      .nav-title {
+        font-size: 0.875rem;
+        color: #64748b;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .nav-grid {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: transparent;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        color: #475569;
+        font-weight: 500;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .nav-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        transition: width 0.3s ease;
+      }
+
+      .nav-item:hover {
+        background: rgba(59, 130, 246, 0.05);
+        color: #3b82f6;
+        transform: translateX(8px);
+      }
+
+      .nav-item:hover::before {
+        width: 4px;
+      }
+
+      .nav-item.active {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 64, 175, 0.05));
+        color: #1e40af;
+        font-weight: 600;
+      }
+
+      .nav-item.active::before {
+        width: 4px;
+      }
+
+      .nav-icon {
+        font-size: 1.125rem;
+        width: 20px;
+        text-align: center;
+      }
+
+      .nav-label {
+        font-size: 0.95rem;
+        letter-spacing: -0.01em;
+      }
+
+      /* Payment Method Section */
+      .payment-section {
+        padding: 1.5rem;
+        border-top: 1px solid rgba(226, 232, 240, 0.5);
+        border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+      }
+
+      .payment-title {
+        font-size: 0.875rem;
+        color: #64748b;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .payment-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(226, 232, 240, 0.5);
+      }
+
+      .payment-image:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      .admin-section {
+        padding: 1.5rem;
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        margin-top: 80px;
+        margin-left: 0;
+        padding: 2rem;
+        background: transparent;
+        min-height: calc(100vh - 80px);
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        letter-spacing: -0.02em;
+      }
+
+      .dashboard-date {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+        font-weight: 500;
+      }
+
+      /* Quick Actions */
+      .quick-actions {
+        margin-bottom: 2.5rem;
+      }
+
+      .quick-actions-header {
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .quick-actions-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+      }
+
+      .quick-actions-subtitle {
+        font-size: 1.125rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 400;
+      }
+
+      .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .quick-action-btn {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(30px);
+        border: none;
+        border-radius: 20px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 
+          0 8px 32px rgba(0, 0, 0, 0.12),
+          0 0 0 1px rgba(255, 255, 255, 0.2);
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .quick-action-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+      }
+
+      .quick-action-btn:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 
+          0 20px 40px rgba(0, 0, 0, 0.2),
+          0 0 0 1px rgba(255, 255, 255, 0.3);
+      }
+
+      .quick-action-btn:active {
+        transform: translateY(-2px) scale(1.01);
+      }
+
+      .quick-action-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        margin-right: 1.25rem;
+        flex-shrink: 0;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .quick-action-btn.savings .quick-action-icon {
+        background: linear-gradient(135deg, #10b981, #059669);
+      }
+
+      .quick-action-btn.withdrawal .quick-action-icon {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+      }
+
+      .quick-action-btn.loan .quick-action-icon {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+      }
+
+      .quick-action-btn.payment .quick-action-icon {
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+      }
+
+      .quick-action-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .quick-action-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+        letter-spacing: -0.01em;
+      }
+
+      .quick-action-desc {
+        font-size: 0.875rem;
+        color: #64748b;
+        line-height: 1.5;
+      }
+
+      .quick-action-arrow {
+        font-size: 1.125rem;
+        color: #cbd5e1;
+        margin-left: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .quick-action-btn:hover .quick-action-arrow {
+        color: #3b82f6;
+        transform: translateX(5px);
+      }
+
+      /* Stats Grid */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .stat-card {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(30px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 
+          0 8px 32px rgba(0, 0, 0, 0.12),
+          0 0 0 1px rgba(255, 255, 255, 0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 
+          0 20px 40px rgba(0, 0, 0, 0.2),
+          0 0 0 1px rgba(255, 255, 255, 0.3);
+      }
+
+      .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+      }
+
+      .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        flex-shrink: 0;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .stat-icon.blue {
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+      }
+
+      .stat-icon.green {
+        background: linear-gradient(135deg, #10b981, #059669);
+      }
+
+      .stat-icon.orange {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+      }
+
+      .stat-icon.red {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+      }
+
+      .stat-title {
+        color: #64748b;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #1e293b;
+        letter-spacing: -0.02em;
+      }
+
+      .stat-change {
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        color: #64748b;
+        line-height: 1.4;
+      }
+
+      .stat-change.positive {
+        color: #10b981;
+      }
+
+      .stat-change.negative {
+        color: #ef4444;
+      }
+
+      /* Tables Section */
+      .tables-section {
+        margin-top: 2.5rem;
+      }
+
+      .tables-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .table-card {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(30px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 
+          0 8px 32px rgba(0, 0, 0, 0.12),
+          0 0 0 1px rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .table-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+      }
+
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .table-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        letter-spacing: -0.01em;
+      }
+
+      .table-subtitle {
+        font-size: 0.875rem;
+        color: #64748b;
+        margin-top: 0.25rem;
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5rem;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+      }
+
+      .data-table th {
+        background: rgba(248, 250, 252, 0.8);
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .data-table td {
+        color: #4b5563;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .data-table tbody tr:hover {
+        background: rgba(59, 130, 246, 0.02);
+      }
+
+      .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .status-active {
+        background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+        color: #166534;
+        border: 1px solid #bbf7d0;
+      }
+
+      .status-pending {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        color: #92400e;
+        border: 1px solid #fbbf24;
+      }
+
+      .status-waiting {
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        color: #1e40af;
+        border: 1px solid #93c5fd;
+      }
+
+      .amount-positive {
+        color: #10b981;
+        font-weight: 600;
+      }
+
+      .amount-negative {
+        color: #ef4444;
+        font-weight: 600;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .pagination button {
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        background: white;
+        color: #374151;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .pagination button:hover:not(:disabled) {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+        transform: translateY(-1px);
+      }
+
+      .pagination button.active {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+      }
+
+      .pagination button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .pagination-info {
+        font-size: 0.875rem;
+        color: #64748b;
+        margin: 0 1rem;
+      }
+
+      /* Image Modal */
+      .image-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(8px);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .image-modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        position: relative;
+        max-width: 90%;
+        max-height: 90%;
+        margin: auto;
+        animation: zoomIn 0.3s ease;
+      }
+
+      .modal-image {
+        width: 100%;
+        height: auto;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .close-modal {
+        position: absolute;
+        top: -50px;
+        right: 0;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+      }
+
+      .close-modal:hover {
+        background: rgba(239, 68, 68, 0.3);
+        border-color: rgba(239, 68, 68, 0.5);
+        transform: scale(1.1);
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes zoomIn {
+        from {
+          transform: scale(0.5);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* Responsive Design */
+      @media (min-width: 768px) {
+        .sidebar {
+          position: static;
+          transform: translateX(0);
+          height: calc(100vh - 80px);
+        }
+
+        .mobile-menu-btn {
+          display: none;
+        }
+
+        .main-content {
+          margin-left: 320px;
+        }
+
+        .tables-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 767px) {
+        .header {
+          padding: 1rem;
+        }
+
+        .header-logo-text {
+          display: none;
+        }
+
+        .mobile-menu-btn {
+          display: block;
+        }
+
+        .main-content {
+          padding: 1rem;
+          margin-left: 0;
+        }
+
+        .dashboard-title {
+          font-size: 2rem;
+        }
+
+        .quick-actions-title {
+          font-size: 1.75rem;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .stat-card {
+          padding: 1.5rem;
+        }
+
+        .stat-value {
+          font-size: 1.75rem;
+        }
+
+        .quick-actions-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .quick-action-btn {
+          padding: 1.25rem;
+        }
+
+        .quick-action-icon {
+          width: 48px;
+          height: 48px;
+          font-size: 1.25rem;
+          margin-right: 1rem;
+        }
+
+        .table-card {
+          padding: 1.5rem;
+        }
+
+        .data-table th,
+        .data-table td {
+          padding: 0.75rem 0.5rem;
+          font-size: 0.8rem;
+        }
+
+        .table-title {
+          font-size: 1.25rem;
+        }
+
+        .tables-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .main-content {
+          padding: 0.75rem;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .dashboard-header {
+          flex-direction: column;
+          align-items: flex-start;
+          text-align: center;
+          width: 100%;
+        }
+
+        .dashboard-title {
+          font-size: 1.75rem;
+        }
+
+        .quick-actions-title {
+          font-size: 1.5rem;
+        }
+
+        .stat-header {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: center;
+          text-align: center;
+        }
+
+        .stat-icon {
+          align-self: center;
+        }
+      }
+
+      /* Loading Animation */
+      .loading {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 8px;
+        height: 1.5rem;
+      }
+
+      @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="background-container"></div>
+    <div class="overlay"></div>
+
+    <!-- Professional Header -->
+    <header class="header">
+      <div class="header-logo">
+        <div class="header-logo-icon">
+          <i class="fas fa-university"></i>
+        </div>
+        <div class="header-logo-text">Success Shared Solution</div>
+      </div>
+      <div class="header-actions">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="user-info">
+          <div class="user-avatar">
+            {{ first_name.0|upper }}{{ last_name.0|upper }}
+          </div>
+          <span>{{ first_name }} {{ last_name }}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- Image Modal -->
+    <div class="image-modal" id="imageModal" onclick="closeImageModal()">
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-modal" onclick="closeImageModal()">&times;</span>
+        <img class="modal-image" id="modalImage" src="" alt="Enlarged view" />
+      </div>
+    </div>
+
+    <div class="app-container">
+      <!-- Sidebar -->
+      <div class="sidebar" id="sidebar">
+        <div class="profile-section">
+          <div>
+            <img
+              src="https://firebasestorage.googleapis.com/v0/b/ctuacaccreditedboardinghouse.appspot.com/o/AlayTrabaho%2Fdefault-profileimg.png?alt=media&token=a150b652-5c6c-46e9-a6ee-895576a83d98"
+              alt="Profile"
+              class="profile-pic"
+            />
+          </div>
+          <div class="username">{{ first_name }} {{ last_name }}</div>
+          <div class="user-role">Premium Member</div>
+        </div>
+
+        <div class="navigation-section">
+          <div class="nav-title">Navigation</div>
+          <div class="nav-grid">
+            <a href="#" class="nav-item active">
+              <i class="fas fa-chart-line nav-icon"></i>
+              <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="{% url 'user_profile' %}" class="nav-item">
+              <i class="fas fa-user nav-icon"></i>
+              <span class="nav-label">Profile</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Payment Method Section -->
+        <div class="payment-section">
+          <div class="payment-title">Payment Method</div>
+          <img
+            src="https://firebasestorage.googleapis.com/v0/b/ctuacaccreditedboardinghouse.appspot.com/o/AlayTrabaho%2F494826200_3936534326568690_7187756420997802893_n.jpg?alt=media&token=2688fe69-b498-4d9a-84fa-5e1230b188db"
+            alt="Payment Method"
+            class="payment-image"
+            onclick="openImageModal(this.src, this.alt)"
+          />
+        </div>
+
+        <div class="admin-section">
+          <div class="nav-title">Account</div>
+          <div class="nav-grid">
+            <a href="{% url 'logout' %}" class="nav-item">
+              <i class="fas fa-sign-out-alt nav-icon"></i>
+              <span class="nav-label">Logout</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Content -->
+      <div class="main-content">
+        <div class="dashboard-header">
+          <div>
+            <div class="dashboard-title">Banking Dashboard</div>
+            <div class="dashboard-date">{{ today }}</div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <div class="quick-actions-header">
+            <h3 class="quick-actions-title">Quick Banking Services</h3>
+            <span class="quick-actions-subtitle">Access your most used banking features</span>
+          </div>
+          <div class="quick-actions-grid">
+            <button class="quick-action-btn savings" onclick="handleQuickAction('deposit')">
+              <div class="quick-action-icon">
+                <i class="fas fa-piggy-bank"></i>
+              </div>
+              <div class="quick-action-content">
+                <span class="quick-action-title">Deposit Funds</span>
+                <span class="quick-action-desc">Add money to your savings account</span>
+              </div>
+              <div class="quick-action-arrow">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </button>
+
+            <button class="quick-action-btn withdrawal" onclick="handleQuickAction('withdrawal')">
+              <div class="quick-action-icon">
+                <i class="fas fa-money-bill-transfer"></i>
+              </div>
+              <div class="quick-action-content">
+                <span class="quick-action-title">Request Withdrawal</span>
+                <span class="quick-action-desc">Withdraw funds from your account</span>
+              </div>
+              <div class="quick-action-arrow">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </button>
+
+            <button class="quick-action-btn loan" onclick="handleQuickAction('loan')">
+              <div class="quick-action-icon">
+                <i class="fas fa-file-contract"></i>
+              </div>
+              <div class="quick-action-content">
+                <span class="quick-action-title">Apply for Loan</span>
+                <span class="quick-action-desc">Submit a new loan application</span>
+              </div>
+              <div class="quick-action-arrow">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </button>
+
+            <button class="quick-action-btn payment" onclick="handleQuickAction('payment')">
+              <div class="quick-action-icon">
+                <i class="fas fa-credit-card"></i>
+              </div>
+              <div class="quick-action-content">
+                <span class="quick-action-title">Make Payment</span>
+                <span class="quick-action-desc">Pay bills and contributions</span>
+              </div>
+              <div class="quick-action-arrow">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-title">Account Balance</div>
+                <div class="stat-value">₱{{ balance|floatformat:2 }}</div>
+                <div class="stat-change positive">
+                  Available funds in your account
+                </div>
+              </div>
+              <div class="stat-icon blue">
+                <i class="fas fa-wallet"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-title">Total Deposits</div>
+                <div class="stat-value">{{ deposit_count }}</div>
+                <div class="stat-change positive">
+                  Successful deposit transactions
+                </div>
+              </div>
+              <div class="stat-icon green">
+                <i class="fas fa-arrow-down"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-title">Total Withdrawals</div>
+                <div class="stat-value">{{ withdrawal_count }}</div>
+                <div class="stat-change">
+                  Processed withdrawal requests
+                </div>
+              </div>
+              <div class="stat-icon orange">
+                <i class="fas fa-arrow-up"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-title">Active Loans</div>
+                <div class="stat-value">{{ loan_count }}</div>
+                <div class="stat-change">
+                  Current loan applications
+                </div>
+              </div>
+              <div class="stat-icon red">
+                <i class="fas fa-handshake"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tables Section -->
+        <div class="tables-section">
+          <div class="tables-grid">
+            <!-- Interest Records Table -->
+            <div class="table-card">
+              <div class="table-header">
+                <div>
+                  <div class="table-title">Interest Records</div>
+                  <div class="table-subtitle">Your earned interest breakdown</div>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table" id="interestTable">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Amount</th>
+                      <th>Rate</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="interestTableBody">
+                    {% for record in interest_records %}
+                    <tr>
+                      <td>{{ record.date }}</td>
+                      <td class="amount-positive">₱{{ record.amount }}</td>
+                      <td>{{ record.rate }}</td>
+                      <td><span class="status-badge status-{{ record.status }}">{{ record.status|title }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="4" style="text-align: center; color: #64748b; font-style: italic;">
+                        No interest records available yet
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="pagination" id="interestPagination">
+                <!-- Pagination will be populated by JavaScript -->
+              </div>
+            </div>
+
+            <!-- Transaction Records Table -->
+            <div class="table-card">
+              <div class="table-header">
+                <div>
+                  <div class="table-title">Transaction History</div>
+                  <div class="table-subtitle">Recent account activity</div>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table" id="recordsTable">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Type</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recordsTableBody">
+                    {% for record in transaction_records %}
+                    <tr>
+                      <td>{{ record.date }}</td>
+                      <td>{{ record.type|title }}</td>
+                      <td class="amount-positive">₱{{ record.amount|floatformat:2 }}</td>
+                      <td><span class="status-badge status-{{ record.status }}">{{ record.status|title }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="4" style="text-align: center; color: #64748b; font-style: italic;">
+                        No transaction records found
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="pagination" id="recordsPagination">
+                <!-- Pagination will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Quick Action handlers
+      function handleQuickAction(action) {
+        // Add visual feedback
+        event.target.style.transform = "scale(0.95)";
+        setTimeout(() => {
+          event.target.style.transform = "";
+        }, 150);
+
+        switch (action) {
+          case "deposit":
+            window.location.href = "{% url 'deposit' %}";
+            break;
+          case "withdrawal":
+            window.location.href = "{% url 'withdrawal' %}";
+            break;
+          case "loan":
+            window.location.href = "{% url 'loan' %}";
+            break;
+          case "payment":
+            window.location.href = "{% url 'payment' %}";
+            break;
+        }
+      }
+
+      // Sidebar functionality
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.querySelector(".sidebar-overlay");
+
+        sidebar.classList.toggle("open");
+        overlay.classList.toggle("show");
+      }
+
+      function closeSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.querySelector(".sidebar-overlay");
+
+        sidebar.classList.remove("open");
+        overlay.classList.remove("show");
+      }
+
+      // Image modal functionality
+      function openImageModal(src, alt) {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImage");
+
+        modal.style.display = "flex";
+        modalImg.src = src;
+        modalImg.alt = alt;
+      }
+
+      function closeImageModal() {
+        const modal = document.getElementById("imageModal");
+        modal.style.display = "none";
+      }
+
+      // Navigation functionality
+      document.querySelectorAll(".nav-item").forEach((item) => {
+        item.addEventListener("click", function (e) {
+          if (this.getAttribute('href') === '#') {
+            e.preventDefault();
+          }
+
+          // Remove active class from all nav items in the same section
+          const parent = this.closest(".navigation-section, .admin-section");
+          if (parent) {
+            parent.querySelectorAll(".nav-item").forEach((el) => {
+              el.classList.remove("active");
+            });
+
+            // Add active class to clicked item
+            this.classList.add("active");
+          }
+
+          // Close sidebar on mobile after selection
+          if (window.innerWidth < 768) {
+            closeSidebar();
+          }
+        });
+      });
+
+      // Pagination settings
+      const itemsPerPage = 5;
+      let currentInterestPage = 1;
+      let currentRecordsPage = 1;
+      let interestData = [];
+      let recordsData = [];
+
+      // Function to render table data
+      function renderTable(data, tableBodyId, currentPage, type) {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const pageData = data.slice(startIndex, endIndex);
+
+        const tbody = document.getElementById(tableBodyId);
+        if (!tbody) return;
+
+        tbody.innerHTML = "";
+
+        if (pageData.length === 0) {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td colspan="4" style="text-align: center; color: #64748b; font-style: italic;">No records available</td>`;
+          tbody.appendChild(row);
+          return;
+        }
+
+        pageData.forEach((item) => {
+          const row = document.createElement("tr");
+
+          if (type === "interest") {
+            row.innerHTML = `
+              <td>${item.date}</td>
+              <td class="amount-positive">₱${item.amount.toFixed(2)}</td>
+              <td>${item.rate}</td>
+              <td><span class="status-badge status-${item.status}">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span></td>
+            `;
+          } else {
+            row.innerHTML = `
+              <td>${item.date}</td>
+              <td>${item.type}</td>
+              <td class="amount-positive">₱${Math.abs(item.amount).toFixed(2)}</td>
+              <td><span class="status-badge status-${item.status}">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span></td>
+            `;
+          }
+
+          tbody.appendChild(row);
+        });
+      }
+
+      // Function to render pagination
+      function renderPagination(data, paginationId, currentPage, type) {
+        const totalPages = Math.ceil(data.length / itemsPerPage);
+        const pagination = document.getElementById(paginationId);
+
+        if (!pagination || totalPages <= 1) return;
+
+        pagination.innerHTML = "";
+
+        // Previous button
+        const prevBtn = document.createElement("button");
+        prevBtn.innerHTML = "&laquo; Prev";
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => {
+          if (type === "interest") {
+            currentInterestPage--;
+            updateInterestTable();
+          } else {
+            currentRecordsPage--;
+            updateRecordsTable();
+          }
+        };
+        pagination.appendChild(prevBtn);
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+          const pageBtn = document.createElement("button");
+          pageBtn.textContent = i;
+          pageBtn.className = currentPage === i ? "active" : "";
+          pageBtn.onclick = () => {
+            if (type === "interest") {
+              currentInterestPage = i;
+              updateInterestTable();
+            } else {
+              currentRecordsPage = i;
+              updateRecordsTable();
+            }
+          };
+          pagination.appendChild(pageBtn);
+        }
+
+        // Next button
+        const nextBtn = document.createElement("button");
+        nextBtn.innerHTML = "Next &raquo;";
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => {
+          if (type === "interest") {
+            currentInterestPage++;
+            updateInterestTable();
+          } else {
+            currentRecordsPage++;
+            updateRecordsTable();
+          }
+        };
+        pagination.appendChild(nextBtn);
+
+        // Page info
+        const pageInfo = document.createElement("div");
+        pageInfo.className = "pagination-info";
+        pageInfo.textContent = `Showing ${(currentPage - 1) * itemsPerPage + 1}-${Math.min(currentPage * itemsPerPage, data.length)} of ${data.length}`;
+        pagination.appendChild(pageInfo);
+      }
+
+      // Update functions
+      function updateInterestTable() {
+        renderTable(interestData, "interestTableBody", currentInterestPage, "interest");
+        renderPagination(interestData, "interestPagination", currentInterestPage, "interest");
+      }
+
+      function updateRecordsTable() {
+        renderTable(recordsData, "recordsTableBody", currentRecordsPage, "records");
+        renderPagination(recordsData, "recordsPagination", currentRecordsPage, "records");
+      }
+
+      // Load data functions
+      function loadInterestData() {
+        // This would typically fetch from your API
+        // For now, using dummy data
+        interestData = [
+          { date: "2024-01-15", amount: 150.00, rate: "2.5%", status: "active" },
+          { date: "2024-01-10", amount: 125.50, rate: "2.5%", status: "active" },
+          { date: "2024-01-05", amount: 100.25, rate: "2.5%", status: "pending" }
+        ];
+        updateInterestTable();
+      }
+
+      function loadTransactionData() {
+        // This would typically fetch from your API
+        // For now, using dummy data
+        recordsData = [
+          { date: "2024-01-20", type: "Deposit", amount: 5000.00, status: "active" },
+          { date: "2024-01-18", type: "Withdrawal", amount: 1000.00, status: "pending" },
+          { date: "2024-01-15", type: "Deposit", amount: 2500.00, status: "active" }
+        ];
+        updateRecordsTable();
+      }
+
+      // Initialize on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        loadInterestData();
+        loadTransactionData();
+
+        // Close sidebar when window is resized to desktop
+        window.addEventListener("resize", function () {
+          if (window.innerWidth >= 768) {
+            closeSidebar();
+          }
+        });
+
+        // Add smooth scrolling to page
+        document.documentElement.style.scrollBehavior = 'smooth';
+      });
+    </script>
+  </body>
+</html>
