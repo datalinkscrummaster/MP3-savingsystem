@@ -1,0 +1,486 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success Shared Solution - Premier Banking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: #0a0e1a;
+        }
+
+        /* Background with blur effect */
+        .background-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://media.istockphoto.com/id/1460762245/photo/modern-style-hi-rise-blue-glass-building-exterior-with-transparent-wall-3d-render.jpg?s=612x612&w=0&k=20&c=a5V0dIHugs_dfzKDHP4NP6WR3lc00vA0wDpaMBrai3o=');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(8px) brightness(0.3);
+            transform: scale(1.1);
+            z-index: -2;
+        }
+
+        /* Overlay for better text readability */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(10, 14, 26, 0.85) 0%, 
+                rgba(30, 58, 138, 0.75) 35%, 
+                rgba(15, 23, 42, 0.9) 100%);
+            z-index: -1;
+        }
+
+        /* Header */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .logo-text {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .security-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #10b981;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Main content */
+        .main-container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+        }
+
+        .bank-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 10px 25px rgba(30, 64, 175, 0.3);
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .welcome-title {
+            color: #1e293b;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .welcome-subtitle {
+            color: #475569;
+            font-size: 1.125rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .bank-name {
+            color: #1e40af;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            letter-spacing: -0.01em;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 0.5rem;
+            border-radius: 12px;
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .feature-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .feature-text {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #475569;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .loading-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .loading-text {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #1e40af);
+            border-radius: 2px;
+            width: 0%;
+            animation: progressLoad 4s ease-out forwards;
+        }
+
+        @keyframes progressLoad {
+            0% { width: 0%; }
+            25% { width: 30%; }
+            50% { width: 60%; }
+            75% { width: 85%; }
+            100% { width: 100%; }
+        }
+
+        .security-badges {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            opacity: 0.7;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Animations */
+        .welcome-card {
+            animation: cardSlideIn 1s ease-out;
+        }
+
+        @keyframes cardSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .welcome-title {
+            animation: titleFadeIn 1.2s ease-out 0.3s both;
+        }
+
+        .welcome-subtitle, .bank-name {
+            animation: subtitleFadeIn 1.2s ease-out 0.6s both;
+        }
+
+        .features-grid {
+            animation: featuresFadeIn 1.2s ease-out 0.9s both;
+        }
+
+        .loading-section {
+            animation: loadingFadeIn 1.2s ease-out 1.2s both;
+        }
+
+        @keyframes titleFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes subtitleFadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes featuresFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes loadingFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .logo-text {
+                display: none;
+            }
+            
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .welcome-card {
+                padding: 2rem 1.5rem;
+                margin-top: 2rem;
+            }
+            
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .feature-item {
+                flex-direction: row;
+                justify-content: flex-start;
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-card {
+                border-radius: 16px;
+                padding: 1.5rem 1rem;
+            }
+            
+            .bank-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-container"></div>
+    <div class="overlay"></div>
+    
+    <header class="header">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-university"></i>
+            </div>
+            <div class="logo-text">Success Shared Solution</div>
+        </div>
+        <div class="security-indicator">
+            <i class="fas fa-shield-alt"></i>
+            <span>Secure Connection</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="welcome-card">
+            <div class="bank-icon">
+                <i class="fas fa-landmark"></i>
+            </div>
+            
+            <h1 class="welcome-title">Welcome to</h1>
+            <p class="welcome-subtitle">Premier Digital Banking</p>
+            <div class="bank-name">Success Shared Solution</div>
+            
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="feature-text">Bank-Grade Security</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="feature-text">Smart Savings</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="feature-text">Mobile First</div>
+                </div>
+            </div>
+            
+            <div class="loading-section">
+                <div class="loading-text">Initializing secure session...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="security-badges">
+        <div class="security-badge">
+            <i class="fas fa-certificate"></i>
+            <span>SSL Encrypted</span>
+        </div>
+        <div class="security-badge">
+            <i class="fas fa-shield-check"></i>
+            <span>FDIC Insured</span>
+        </div>
+        <div class="security-badge">
+            <i class="fas fa-user-shield"></i>
+            <span>Privacy Protected</span>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced loading experience
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate loading steps
+            const loadingText = document.querySelector('.loading-text');
+            const steps = [
+                'Initializing secure session...',
+                'Verifying security protocols...',
+                'Loading your dashboard...',
+                'Almost ready...'
+            ];
+            
+            let currentStep = 0;
+            const stepInterval = setInterval(() => {
+                if (currentStep < steps.length - 1) {
+                    currentStep++;
+                    loadingText.textContent = steps[currentStep];
+                } else {
+                    clearInterval(stepInterval);
+                }
+            }, 1000);
+        });
+
+        // Redirect after 5 seconds with smooth transition
+        setTimeout(() => {
+            document.body.style.transition = 'opacity 0.5s ease-out';
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                window.location.href = "{% url 'auth_view' %}";
+            }, 500);
+        }, 5000);
+    </script>
+</body>
+</html>
