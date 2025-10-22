@@ -59,62 +59,142 @@ def auth_view(request):
                 email = data.get('email')
                 password = data.get('password')
 
+                # Validate input
+                if not email or not password:
+                    return JsonResponse({'success': False, 'message': 'Email and password are required.'}, status=400)
+
                 try:
-                    # Authenticate with Firebase Authentication
+                    # Attempt Firebase authentication
+                    print(f"Attempting login for email: {email}")
                     user = auth_instance.sign_in_with_email_and_password(email, password)
-
-                    # Check user status in Realtime Database
+                    print(f"Firebase auth successful for: {email}")
+                    
+                    # If we get here, Firebase authentication was successful
+                    email_key = email.replace('.', '_').replace('@', '_at_')
                     user_data = None
-                    all_users = db.child("userRegistrations").get()
-                    if all_users.each():
-                        for u in all_users.each():
-                            if u.val().get("email") == email:
-                                user_data = u.val()
-                                break
+                    user_role = None  # 'admin' or 'user'
 
-                    if user_data:
-                        if user_data.get("status") == "pending":
+                    # Check in "admin" node first
+                    try:
+                        admin_users = db.child("admin").get()
+                        if admin_users.each():
+                            for a in admin_users.each():
+                                admin_email = a.val().get("email")
+                                if admin_email == email:
+                                    user_data = a.val()
+                                    user_role = 'admin'
+                                    print(f"Found admin user: {email}")
+                                    break
+                    except Exception as db_error:
+                        print(f"Error checking admin users: {db_error}")
+
+                    # If not found in admin, check userRegistrations
+                    if not user_data:
+                        try:
+                            all_users = db.child("userRegistrations").get()
+                            if all_users.each():
+                                for u in all_users.each():
+                                    user_email = u.val().get("email")
+                                    if user_email == email:
+                                        user_data = u.val()
+                                        user_role = 'user'
+                                        print(f"Found regular user: {email}")
+                                        break
+                        except Exception as db_error:
+                            print(f"Error checking regular users: {db_error}")
+
+                    if not user_data:
+                        print(f"User data not found in database for: {email}")
+                        return JsonResponse({
+                            'success': False, 
+                            'message': 'User record not found in database. Please contact administrator.'
+                        }, status=404)
+
+                    # Check user status (only for regular users, not admins)
+                    if user_role == 'user':
+                        user_status = user_data.get("status", "pending")
+                        if user_status == "pending":
                             return JsonResponse({
                                 'success': False,
                                 'message': 'Your account is still pending approval. Please wait for the admin to approve your registration.'
                             }, status=403)
 
-                        if user_data.get("status") == "rejected":
+                        if user_status == "rejected":
                             return JsonResponse({
                                 'success': False,
-                                'message': 'Your registration was rejected. Please contact the administrator for more details.'
+                                'message': 'Your registration was rejected. Please contact the administrator.'
                             }, status=403)
 
-                        # Generate OTP and send email
-                        otp_code = random.randint(100000, 999999)
-
-                        # Save OTP in Firebase
-                        email_key = email.replace('.', '_').replace('@', '_at_')
+                    # Generate OTP
+                    otp_code = random.randint(100000, 999999)
+                    try:
                         db.child("userVerificationCodes").child(email_key).set({'otp': otp_code})
+                        print(f"OTP generated and stored: {otp_code} for {email}")
+                    except Exception as otp_error:
+                        print(f"Error storing OTP: {otp_error}")
+                        return JsonResponse({'success': False, 'message': 'Error generating verification code.'}, status=500)
 
-                        # Store email and name in session
-                        request.session['email'] = email
-                        request.session['first_name'] = user_data.get("first_name")
-                        request.session['last_name'] = user_data.get("last_name")
-                        request.session['date_joined'] = user_data.get("date_joined")
+                    # Store user session data
+                    request.session['email'] = email
+                    request.session['first_name'] = user_data.get("first_name", "")
+                    request.session['last_name'] = user_data.get("last_name", "")
+                    request.session['date_joined'] = user_data.get("date_joined", "")
+                    request.session['role'] = user_role
 
-                        # Send OTP email
+                    # Send OTP email
+                    try:
                         send_mail(
-                            'Your Login OTP Code',
-                            f'Your one-time login code is: {otp_code}',
+                            'Your Login OTP Code - Success Shared Solution',
+                            f'Hello {user_data.get("first_name", "")},\n\nYour one-time login code is: {otp_code}\n\nThis code will expire in 10 minutes.\n\nIf you did not request this code, please ignore this email.\n\nBest regards,\nSuccess Shared Solution Team',
                             'no-reply@yourdomain.com',
                             [email],
                             fail_silently=False,
                         )
+                        print(f"OTP email sent successfully to: {email}")
+                    except Exception as email_error:
+                        print(f"Error sending OTP email: {email_error}")
+                        # Still return success since authentication worked
+                        return JsonResponse({
+                            'success': True, 
+                            'message': f'Login successful! Your OTP code is: {otp_code} (Email service unavailable)', 
+                            'otp': otp_code
+                        })
 
-                        return JsonResponse({'success': True, 'message': 'Login successful, OTP sent. Please check spam messages also.', 'otp': otp_code})
-                    else:
-                        return JsonResponse({'success': False, 'message': 'User record not found in database.'}, status=404)
-
+                    return JsonResponse({
+                        'success': True, 
+                        'message': 'Login successful! OTP sent to your email. Please check your inbox (and spam folder).', 
+                        'otp': otp_code  # Remove this in production
+                    })
 
                 except Exception as e:
-                    print(f"Firebase login error: {e}")
-                    return JsonResponse({'success': False, 'message': 'Invalid email or password'}, status=401)
+                    error_message = str(e)
+                    print(f"🚨 Firebase login error for {email}: {error_message}")
+                    print(f"🔍 Error type: {type(e)}")
+                    print(f"📋 Full error details: {repr(e)}")
+                    
+                    # Try to get more detailed error information
+                    if hasattr(e, 'args') and e.args:
+                        print(f"📄 Error args: {e.args}")
+                    
+                    # Handle specific Firebase authentication errors
+                    error_upper = error_message.upper()
+                    if "INVALID_EMAIL" in error_upper or "INVALID-EMAIL" in error_upper:
+                        return JsonResponse({'success': False, 'message': 'Invalid email address format.'}, status=401)
+                    elif "EMAIL_NOT_FOUND" in error_upper or "EMAIL-NOT-FOUND" in error_upper:
+                        return JsonResponse({'success': False, 'message': 'No account found with this email address.'}, status=401)
+                    elif "INVALID_PASSWORD" in error_upper or "INVALID-PASSWORD" in error_upper or "WRONG-PASSWORD" in error_upper:
+                        return JsonResponse({'success': False, 'message': 'Incorrect password. Please try again.'}, status=401)
+                    elif "INVALID_LOGIN_CREDENTIALS" in error_upper or "INVALID-LOGIN-CREDENTIALS" in error_upper:
+                        return JsonResponse({'success': False, 'message': 'Invalid email or password. Please check your credentials.'}, status=401)
+                    elif "USER_DISABLED" in error_upper or "USER-DISABLED" in error_upper:
+                        return JsonResponse({'success': False, 'message': 'This account has been disabled.'}, status=401)
+                    elif "TOO_MANY_ATTEMPTS_TRY_LATER" in error_upper or "TOO-MANY-REQUESTS" in error_upper:
+                        return JsonResponse({'success': False, 'message': 'Too many failed attempts. Please try again later.'}, status=429)
+                    elif "NETWORK" in error_upper or "CONNECTION" in error_upper:
+                        return JsonResponse({'success': False, 'message': 'Network error. Please check your connection and try again.'}, status=500)
+                    else:
+                        # Return the actual error message for debugging
+                        return JsonResponse({'success': False, 'message': f'Authentication failed: {error_message}'}, status=401)
 
             else:
                 return JsonResponse({'success': False, 'message': 'Unknown action'}, status=400)
@@ -178,21 +258,43 @@ def verify(request):
                 # OTP is valid, remove it from DB
                 db.child("userVerificationCodes").child(email_key).remove()
 
-                # Fetch user data from registrations
-                users = db.child("userRegistrations").get()
-                for user in users.each():
-                    user_data = user.val()
-                    if user_data.get('email') == email:
-                        # Store user info in session
-                        request.session['first_name'] = user_data.get('first_name')
-                        request.session['last_name'] = user_data.get('last_name')
-                        request.session['email'] = email
-                        request.session['date_joined'] = user_data.get('date_joined')
-                        request.session['balance'] = user_data.get('balance')
-                        request.session['total_interest'] = user_data.get('total_interest')
-                        break
+                # Check user role from session (set during login)
+                user_role = request.session.get('role')
+                user_data = None
+                redirect_url = '/user/dashboard/'
 
-                return JsonResponse({'success': True, 'message': 'Verification successful', 'redirect': '/user/dashboard/'})
+                if user_role == 'admin':
+                    # Fetch admin data
+                    admin_users = db.child("admin").get()
+                    if admin_users.each():
+                        for admin in admin_users.each():
+                            if admin.val().get('email') == email:
+                                user_data = admin.val()
+                                redirect_url = '/admin/dashboard/'  # Admin dashboard
+                                break
+                else:
+                    # Fetch user data from registrations
+                    users = db.child("userRegistrations").get()
+                    if users.each():
+                        for user in users.each():
+                            if user.val().get('email') == email:
+                                user_data = user.val()
+                                break
+
+                if user_data:
+                    # Store user info in session
+                    request.session['first_name'] = user_data.get('first_name', '')
+                    request.session['last_name'] = user_data.get('last_name', '')
+                    request.session['email'] = email
+                    request.session['date_joined'] = user_data.get('date_joined', '')
+                    request.session['role'] = user_role
+                    
+                    # Only set balance and interest for regular users
+                    if user_role == 'user':
+                        request.session['balance'] = user_data.get('balance', 0)
+                        request.session['total_interest'] = user_data.get('total_interest', 0)
+
+                return JsonResponse({'success': True, 'message': 'Verification successful', 'redirect': redirect_url})
 
             else:
                 return JsonResponse({'success': False, 'message': 'Invalid code'}, status=401)

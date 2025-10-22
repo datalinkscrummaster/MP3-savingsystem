@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Success Shared Solution - Secure Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+        background: #0a0e1a;
+        overflow-x: hidden;
+      }
+
+      /* Background with blur effect */
+      .background-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('https://media.istockphoto.com/id/1460762245/photo/modern-style-hi-rise-blue-glass-building-exterior-with-transparent-wall-3d-render.jpg?s=612x612&w=0&k=20&c=a5V0dIHugs_dfzKDHP4NP6WR3lc00vA0wDpaMBrai3o=');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        filter: blur(12px) brightness(0.25);
+        transform: scale(1.1);
+        z-index: -2;
+      }
+
+      /* Overlay for better contrast */
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, 
+          rgba(10, 14, 26, 0.9) 0%, 
+          rgba(30, 58, 138, 0.8) 35%, 
+          rgba(15, 23, 42, 0.95) 100%);
+        z-index: -1;
+      }
+
+      /* Header */
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(20px);
+        background: rgba(15, 23, 42, 0.4);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 100;
+      }
+
+      .header-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: white;
+      }
+
+      .header-logo-icon {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+      }
+
+      .header-logo-text {
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .security-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #10b981;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .container {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(25px);
+        border-radius: 24px;
+        box-shadow: 
+          0 32px 64px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(255, 255, 255, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        overflow: hidden;
+        width: 100%;
+        max-width: 1000px;
+        min-height: 650px;
+        display: flex;
+        position: relative;
+        margin-top: 80px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+        z-index: 1;
+      }
+
+      .left-panel {
+        flex: 1.2;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #1e3a8a 100%);
+        color: white;
+        padding: 60px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .left-panel::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+        opacity: 0.6;
+        animation: float 25s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        33% {
+          transform: translateY(-15px) rotate(120deg);
+        }
+        66% {
+          transform: translateY(10px) rotate(240deg);
+        }
+      }
+
+      .logo {
+        font-size: 2.25rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        letter-spacing: -0.02em;
+      }
+
+      .logo-image {
+        width: 56px;
+        height: 56px;
+        margin-right: 16px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .logo-image svg {
+        width: 32px;
+        height: 32px;
+        fill: white;
+      }
+
+      .tagline {
+        font-size: 1.25rem;
+        opacity: 0.95;
+        margin-bottom: 2.5rem;
+        position: relative;
+        z-index: 2;
+        font-weight: 400;
+        line-height: 1.5;
+      }
+
+      .features {
+        list-style: none;
+        position: relative;
+        z-index: 2;
+        margin-bottom: 2rem;
+      }
+
+      .features li {
+        padding: 12px 0;
+        display: flex;
+        align-items: center;
+        opacity: 0.9;
+        font-size: 1rem;
+        font-weight: 400;
+      }
+
+      .features li::before {
+        content: "✓";
+        background: rgba(16, 185, 129, 0.2);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 16px;
+        font-weight: bold;
+        font-size: 0.875rem;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+      }
+
+      .contact-info {
+        position: relative;
+        z-index: 2;
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-style: italic;
+        padding: 16px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      .right-panel {
+        flex: 1;
+        padding: 60px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .form-toggle {
+        display: flex;
+        background: rgba(59, 130, 246, 0.08);
+        border-radius: 16px;
+        padding: 6px;
+        margin-bottom: 40px;
+        border: 1px solid rgba(59, 130, 246, 0.1);
+      }
+
+      .toggle-btn {
+        flex: 1;
+        padding: 14px 24px;
+        background: transparent;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        color: #64748b;
+        font-size: 1rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .toggle-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        border-radius: 12px;
+      }
+
+      .toggle-btn.active {
+        color: white;
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.25);
+        transform: translateY(-1px);
+      }
+
+      .toggle-btn.active::before {
+        opacity: 1;
+      }
+
+      .toggle-btn span {
+        position: relative;
+        z-index: 1;
+      }
+
+      .form-container {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .form {
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .form.hidden {
+        opacity: 0;
+        transform: translateX(100px);
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+      }
+
+      .form-group {
+        margin-bottom: 28px;
+        position: relative;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.95rem;
+        letter-spacing: -0.01em;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 18px 24px;
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: #fafbfc;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .form-group input:hover:not(:focus) {
+        border-color: #cbd5e1;
+        background: white;
+      }
+
+      .password-toggle {
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #64748b;
+        font-size: 1.1rem;
+        padding: 10px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .password-toggle:hover {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+      }
+
+      .checkbox-group {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 32px;
+        gap: 12px;
+      }
+
+      .checkbox-group input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        accent-color: #3b82f6;
+        cursor: pointer;
+      }
+
+      .checkbox-group label {
+        margin: 0;
+        font-weight: 400;
+        color: #475569;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        cursor: pointer;
+      }
+
+      .checkbox-group a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .checkbox-group a:hover {
+        text-decoration: underline;
+      }
+
+      .submit-btn {
+        width: 100%;
+        padding: 18px 24px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 60px;
+        letter-spacing: -0.01em;
+      }
+
+      .submit-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.6s;
+      }
+
+      .submit-btn:hover::before {
+        left: 100%;
+      }
+
+      .submit-btn:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(59, 130, 246, 0.4);
+      }
+
+      .submit-btn:disabled {
+        background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .submit-btn:disabled::before {
+        display: none;
+      }
+
+      .loading-spinner {
+        width: 22px;
+        height: 22px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 12px;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .btn-text {
+        transition: opacity 0.3s ease;
+      }
+
+      .forgot-password {
+        text-align: center;
+        margin-top: 24px;
+      }
+
+      .forgot-password a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+      }
+
+      .forgot-password a:hover {
+        color: #1e40af;
+        text-decoration: underline;
+      }
+
+      .security-info {
+        background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+        border: 1px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin-top: 24px;
+        font-size: 0.875rem;
+        color: #166534;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        line-height: 1.5;
+      }
+
+      .security-info::before {
+        content: "🔒";
+        font-size: 1.1rem;
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          padding: 1rem;
+        }
+        
+        .header-logo-text {
+          display: none;
+        }
+        
+        .container {
+          flex-direction: column;
+          max-width: 450px;
+          min-height: auto;
+          margin-top: 100px;
+        }
+
+        .left-panel {
+          padding: 40px 30px;
+          min-height: 250px;
+        }
+
+        .right-panel {
+          padding: 40px 30px;
+        }
+
+        .logo {
+          font-size: 1.875rem;
+        }
+
+        .features {
+          display: none;
+        }
+
+        .contact-info {
+          font-size: 0.8rem;
+          padding: 12px 16px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          margin: 90px 10px 20px;
+          border-radius: 20px;
+        }
+        
+        .left-panel, .right-panel {
+          padding: 30px 20px;
+        }
+        
+        .logo {
+          font-size: 1.5rem;
+        }
+        
+        .logo-image {
+          width: 48px;
+          height: 48px;
+        }
+        
+        .tagline {
+          font-size: 1.1rem;
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(30px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="background-container"></div>
+    <div class="overlay"></div>
+    
+    <header class="header">
+      <div class="header-logo">
+        <div class="header-logo-icon">
+          <i class="fas fa-university"></i>
+        </div>
+        <div class="header-logo-text">Success Shared Solution</div>
+      </div>
+      <div class="security-badge">
+        <i class="fas fa-shield-alt"></i>
+        <span>Secure Access</span>
+      </div>
+    </header>
+
+    <div class="container fade-in">
+      <div class="left-panel">
+        <div class="logo">
+          <div class="logo-image">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 2L1 7V9H23V7L12 2ZM3 11V19C3 19.55 3.45 20 4 20H8V14H16V20H20C20.55 20 21 19.55 21 19V11H3ZM10 16V18H6V16H10ZM18 16V18H14V16H18Z"
+              />
+              <rect x="5" y="12" width="2" height="2" />
+              <rect x="9" y="12" width="2" height="2" />
+              <rect x="13" y="12" width="2" height="2" />
+              <rect x="17" y="12" width="2" height="2" />
+            </svg>
+          </div>
+          Success Shared Solution
+        </div>
+        <div class="tagline">Your trusted partner in digital banking excellence</div>
+        <ul class="features">
+          <li>Bank-level security encryption</li>
+          <li>24/7 customer support</li>
+          <li>Mobile banking made easy</li>
+          <li>Real-time transaction alerts</li>
+        </ul>
+        <div class="contact-info">
+          <i class="fas fa-envelope" style="margin-right: 8px;"></i>
+          Contact admin: jrcabua@gmail.com
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="form-toggle">
+          <button class="toggle-btn active" onclick="showLogin()">
+            <span>Login</span>
+          </button>
+          <button class="toggle-btn" onclick="showRegister()">
+            <span>Register</span>
+          </button>
+        </div>
+
+        <div class="form-container">
+          <!-- Login Form -->
+          <form
+            class="form"
+            id="loginForm"
+            method="POST"
+            action="/authentication/"
+          >
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="loginEmail">Email Address</label>
+              <input type="email" id="loginEmail" name="email" required />
+            </div>
+
+            <div class="form-group" style="position: relative">
+              <label for="loginPassword">Password</label>
+              <input
+                type="password"
+                id="loginPassword"
+                name="password"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                onclick="togglePassword('loginPassword')"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+
+            <div class="checkbox-group">
+              <input type="checkbox" id="rememberMe" />
+              <label for="rememberMe">Remember me for 30 days</label>
+            </div>
+
+            <button type="submit" class="submit-btn" id="loginBtn">
+              <span class="btn-text">Sign In Securely</span>
+            </button>
+
+            <div class="forgot-password">
+              <a href="{% url 'forgot_password' %}" 
+                >Forgot your password?</a
+              >
+            </div>
+          </form>
+
+          <!-- Register Form -->
+          <form
+            class="form hidden"
+            id="registerForm"
+            method="POST"
+            action="/authentication/"
+          >
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" required />
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" required />
+            </div>
+
+            <div class="form-group">
+              <label for="registerEmail">Email Address</label>
+              <input type="email" id="registerEmail" name="email" required />
+            </div>
+
+            <div class="form-group" style="position: relative">
+              <label for="registerPassword">Password</label>
+              <input
+                type="password"
+                id="registerPassword"
+                name="password"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                onclick="togglePassword('registerPassword')"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+
+            <div class="form-group" style="position: relative">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                onclick="togglePassword('confirmPassword')"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+
+            <div class="checkbox-group">
+              <input type="checkbox" id="agreeTerms" required />
+              <label for="agreeTerms"
+                >I agree to the
+                <a href="#" style="color: #3b82f6">Terms of Service</a> and
+                <a href="#" style="color: #3b82f6">Privacy Policy</a></label
+              >
+            </div>
+
+            <button type="submit" class="submit-btn" id="registerBtn">
+              <span class="btn-text">Create Account</span>
+            </button>
+
+            <div class="security-info">
+              Your personal information is protected with 256-bit SSL encryption and stored securely
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showLogin() {
+        const loginForm = document.getElementById("loginForm");
+        const registerForm = document.getElementById("registerForm");
+        const toggleBtns = document.querySelectorAll(".toggle-btn");
+
+        loginForm.classList.remove("hidden");
+        registerForm.classList.add("hidden");
+
+        toggleBtns[0].classList.add("active");
+        toggleBtns[1].classList.remove("active");
+
+        // Reset button states when switching forms
+        resetButtonState('loginBtn', 'Sign In Securely');
+        resetButtonState('registerBtn', 'Create Account');
+      }
+
+      function showRegister() {
+        const loginForm = document.getElementById("loginForm");
+        const registerForm = document.getElementById("registerForm");
+        const toggleBtns = document.querySelectorAll(".toggle-btn");
+
+        loginForm.classList.add("hidden");
+        registerForm.classList.remove("hidden");
+
+        toggleBtns[0].classList.remove("active");
+        toggleBtns[1].classList.add("active");
+
+        // Reset button states when switching forms
+        resetButtonState('loginBtn', 'Sign In Securely');
+        resetButtonState('registerBtn', 'Create Account');
+      }
+
+      function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const btn = input.nextElementSibling;
+        const icon = btn.querySelector("i");
+
+        if (input.type === "password") {
+          input.type = "text";
+          icon.className = "fas fa-eye-slash";
+        } else {
+          input.type = "password";
+          icon.className = "fas fa-eye";
+        }
+      }
+ 
+      function setButtonLoading(buttonId, loadingText) {
+        const button = document.getElementById(buttonId);
+        const btnText = button.querySelector('.btn-text');
+        
+        button.disabled = true;
+        button.innerHTML = `
+          <div class="loading-spinner"></div>
+          <span class="btn-text">${loadingText}</span>
+        `;
+      }
+
+      function resetButtonState(buttonId, originalText) {
+        const button = document.getElementById(buttonId);
+        
+        button.disabled = false;
+        button.innerHTML = `<span class="btn-text">${originalText}</span>`;
+      }
+
+      // Add smooth animations when switching forms
+      document.addEventListener("DOMContentLoaded", function () {
+        const loginForm = document.getElementById("loginForm");
+        const registerForm = document.getElementById("registerForm");
+
+        // Handle Login
+        loginForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          // Set loading state
+          setButtonLoading('loginBtn', 'Authenticating...');
+
+          const email = document.getElementById("loginEmail").value.trim();
+          const password = document.getElementById("loginPassword").value;
+
+          fetch("/authentication/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: JSON.stringify({
+              type: "login",
+              email: email,
+              password: password,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              alert(data.message);
+              if (data.success) {
+                // Keep loading state for successful login
+                setButtonLoading('loginBtn', 'Redirecting...');
+                
+                // Save email for OTP verification page
+                localStorage.setItem("emailForVerification", email);
+
+                // Redirect to the verify page
+                window.location.href = "{% url 'verify' %}";
+              } else {
+                // Reset button state on error
+                resetButtonState('loginBtn', 'Sign In Securely');
+              }
+            })
+            .catch((error) => {
+              console.error("Login error:", error);
+              // Reset button state on error
+              resetButtonState('loginBtn', 'Sign In Securely');
+            });
+        });
+
+        // Handle Registration
+        registerForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          // Set loading state
+          setButtonLoading('registerBtn', 'Creating account...');
+
+          const firstName = document.getElementById("firstName").value.trim();
+          const lastName = document.getElementById("lastName").value.trim();
+          const email = document.getElementById("registerEmail").value.trim();
+          const password = document.getElementById("registerPassword").value;
+          const confirmPassword =
+            document.getElementById("confirmPassword").value;
+
+          if (password !== confirmPassword) {
+            alert("Passwords do not match!");
+            resetButtonState('registerBtn', 'Create Account');
+            return;
+          }
+
+          fetch("/authentication/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: JSON.stringify({
+              type: "register",
+              first_name: firstName,
+              last_name: lastName,
+              email: email,
+              password: password,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              alert(data.message);
+              if (data.success) {
+                // Keep loading state for successful registration
+                setButtonLoading('registerBtn', 'Account created!');
+                
+                // Optional: Switch to login form after successful registration
+                setTimeout(() => {
+                  showLogin();
+                }, 2000);
+              } else {
+                // Reset button state on error
+                resetButtonState('registerBtn', 'Create Account');
+              }
+            })
+            .catch((error) => {
+              console.error("Registration error:", error);
+              // Reset button state on error
+              resetButtonState('registerBtn', 'Create Account');
+            });
+        });
+
+        // CSRF helper
+        function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let cookie of cookies) {
+              cookie = cookie.trim();
+              if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
+      });
+    </script>
+  </body>
+</html>

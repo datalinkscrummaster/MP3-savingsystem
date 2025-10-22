@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success Shared Solution - User Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            background: #0a0e1a;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background with blur effect */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://media.istockphoto.com/id/1460762245/photo/modern-style-hi-rise-blue-glass-building-exterior-with-transparent-wall-3d-render.jpg?s=612x612&w=0&k=20&c=a5V0dIHugs_dfzKDHP4NP6WR3lc00vA0wDpaMBrai3o=');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(15px) brightness(0.2);
+            transform: scale(1.1);
+            z-index: -2;
+        }
+
+        /* Overlay for better contrast */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(10, 14, 26, 0.95) 0%, 
+                rgba(30, 58, 138, 0.85) 35%, 
+                rgba(15, 23, 42, 0.98) 100%);
+            z-index: -1;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(25px);
+            background: rgba(15, 23, 42, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+        }
+
+        .header-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .header-logo-text {
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: translateY(-1px);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            min-height: calc(100vh - 80px);
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .page-subtitle {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+        }
+
+        /* Profile Cards */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(30px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            animation: slideInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+            z-index: 1;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            letter-spacing: -0.01em;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .info-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            padding: 0.75rem 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .info-value:hover {
+            background: white;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .info-value.email {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-size: 1rem;
+            color: #3b82f6;
+        }
+
+        .info-value.balance {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #10b981;
+            background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+            border-color: #bbf7d0;
+        }
+
+        .info-value.interest {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #f59e0b;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-color: #fbbf24;
+        }
+
+        .info-value.date {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-size: 1rem;
+            color: #6366f1;
+            background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+            border-color: #c7d2fe;
+        }
+
+        /* Financial Summary Card */
+        .financial-card {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            text-align: center;
+        }
+
+        .financial-card .card-icon {
+            background: rgba(255, 255, 255, 0.2);
+            margin: 0 auto;
+        }
+
+        .financial-card .card-title {
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .financial-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-description {
+            font-size: 0.875rem;
+            opacity: 0.7;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .header-logo-text {
+                display: none;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+
+            .profile-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .profile-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .financial-summary {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .action-btn {
+                width: 200px;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 0.5rem;
+                margin-top: 70px;
+            }
+
+            .profile-card {
+                padding: 1.5rem 1rem;
+                border-radius: 20px;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .card-title {
+                font-size: 1.25rem;
+            }
+
+            .summary-value {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
+            height: 1.5rem;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-container"></div>
+    <div class="overlay"></div>
+    
+    <header class="header">
+        <div class="header-logo">
+            <div class="header-logo-icon">
+                <i class="fas fa-university"></i>
+            </div>
+            <div class="header-logo-text">Success Shared Solution</div>
+        </div>
+        <div class="header-actions">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ first_name.0|upper }}{{ last_name.0|upper }}
+                </div>
+                <span>{{ first_name }} {{ last_name }}</span>
+            </div>
+            <a href="{% url 'logout' %}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="dashboard-container">
+            <div class="page-header">
+                <h1 class="page-title">Account Profile</h1>
+                <p class="page-subtitle">Your personal banking information and account details</p>
+            </div>
+
+            <div class="profile-grid">
+                <!-- Personal Information Card -->
+                <div class="profile-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h2 class="card-title">Personal Information</h2>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label class="info-label">First Name</label>
+                            <div class="info-value">{{ first_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Last Name</label>
+                            <div class="info-value">{{ last_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Email Address</label>
+                            <div class="info-value email">{{ email }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Member Since</label>
+                            <div class="info-value date">{{ date_joined }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information Card -->
+                <div class="profile-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <h2 class="card-title">Account Details</h2>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label class="info-label">Current Balance</label>
+                            <div class="info-value balance">${{ balance|floatformat:2 }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Total Interest Earned</label>
+                            <div class="info-value interest">${{ total_interest|floatformat:2 }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Account Status</label>
+                            <div class="info-value" style="color: #10b981; background: linear-gradient(135deg, #ecfdf5, #f0fdf4); border-color: #bbf7d0;">
+                                <i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i>
+                                Active
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Account Type</label>
+                            <div class="info-value" style="color: #3b82f6;">Premium Savings</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Summary Card -->
+                <div class="profile-card financial-card">
+                    <div class="card-header" style="justify-content: center;">
+                        <div class="card-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <h2 class="card-title">Financial Summary</h2>
+                    <div class="financial-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">Total Balance</div>
+                            <div class="summary-value">${{ balance|floatformat:2 }}</div>
+                            <div class="summary-description">Available funds</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Interest Earned</div>
+                            <div class="summary-value">${{ total_interest|floatformat:2 }}</div>
+                            <div class="summary-description">Lifetime earnings</div>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="#" class="action-btn">
+                            <i class="fas fa-download"></i>
+                            Download Statement
+                        </a>
+                        <a href="#" class="action-btn">
+                            <i class="fas fa-cog"></i>
+                            Account Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Add loading animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate loading state
+            const cards = document.querySelectorAll('.profile-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            // Add hover effects
+            const infoValues = document.querySelectorAll('.info-value');
+            infoValues.forEach(value => {
+                value.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px) scale(1.02)';
+                });
+                
+                value.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Add copy functionality for email
+            const emailValue = document.querySelector('.info-value.email');
+            if (emailValue) {
+                emailValue.style.cursor = 'pointer';
+                emailValue.title = 'Click to copy email';
+                
+                emailValue.addEventListener('click', function() {
+                    navigator.clipboard.writeText(this.textContent).then(() => {
+                        const originalText = this.textContent;
+                        this.textContent = 'Copied!';
+                        this.style.background = 'linear-gradient(135deg, #ecfdf5, #f0fdf4)';
+                        this.style.color = '#10b981';
+                        
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                            this.style.background = '#f8fafc';
+                            this.style.color = '#3b82f6';
+                        }, 2000);
+                    });
+                });
+            }
+
+            // Add real-time clock
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString();
+                const dateString = now.toLocaleDateString();
+                
+                // You can add a time display if needed
+                console.log(`Current time: ${timeString} on ${dateString}`);
+            }
+            
+            setInterval(updateTime, 1000);
+        });
+
+        // Handle logout confirmation
+        document.querySelector('.logout-btn').addEventListener('click', function(e) {
+            if (!confirm('Are you sure you want to logout?')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
